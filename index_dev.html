@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Rosco Aula</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#062c73;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Arial, Helvetica, sans-serif;
+    overflow:hidden;
+}
+
+.rosco{
+    position:relative;
+    width:650px;
+    height:650px;
+}
+
+.letra{
+    position:absolute;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:#1976d2;
+    border:3px solid white;
+    color:white;
+    font-weight:bold;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    transition:.25s;
+    user-select:none;
+}
+
+.activa{
+    transform:scale(1.25);
+    box-shadow:0 0 20px white;
+    border:4px solid white;
+}
+
+.centro{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    color:white;
+}
+
+.centro h1{
+    margin:0;
+    font-size:52px;
+}
+
+.temporizador{
+    display:inline-block;
+    background:#ffffff;
+    color:#062c73;
+    padding:8px 18px;
+    border-radius:25px;
+    font-size:28px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+.centro h2{
+    margin-top:20px;
+    margin-bottom:10px;
+}
+
+.pregunta{
+    width:320px;
+    margin:0 auto 20px auto;
+    line-height:1.5;
+}
+
+input{
+    width:280px;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    font-size:18px;
+    text-align:center;
+}
+
+.boton{
+    margin:10px 5px;
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    background:#1976d2;
+    color:white;
+}
+
+.boton:hover{
+    background:#2196f3;
+}
+
+.paso{
+    background:#f39c12;
+}
+
+.paso:hover{
+    background:#f5b041;
+}
+.modalFinal{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.55);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.modalContenido{
+
+    background:linear-gradient(180deg,#ffffff,#f5f8ff);
+
+    border-radius:20px;
+
+    padding:35px;
+
+    width:480px;
+
+    max-width:90%;
+
+    text-align:center;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.30);
+border:3px solid #1b5cff;
+    animation:aparecer .25s ease;
+}
+
+@keyframes aparecer{
+
+from{
+
+transform:scale(.85);
+
+opacity:0;
+
+}
+
+to{
+
+transform:scale(1);
+
+opacity:1;
+
+}
+
+}
+
+.modalContenido h2{
+
+margin-top:0;
+
+font-size:34px;
+
+color:#1b5cff;
+
+margin-bottom:25px;
+
+}
+
+.modalContenido button{
+
+margin-top:25px;
+
+padding:12px 30px;
+
+border:none;
+
+border-radius:10px;
+
+background:#1b5cff;
+
+color:white;
+
+font-size:17px;
+
+cursor:pointer;
+
+}
+
+.modalContenido button:hover{
+
+background:#1148d1;
+
+}
+#resultadoFinal p{
+
+font-size:20px;
+
+margin:12px 0;
+
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="rosco">
+
+<div class="centro">
+
+<h1>ROSCO</h1>
+
+<div class="temporizador">04:00</div>
+
+<div id="zonaJuego">
+
+<h2 id="tituloPregunta">Con la A...</h2>
+
+<p class="pregunta" id="textoPregunta">
+Periodista deportivo argentino reconocido por sus relatos y análisis.
+</p>
+
+<input type="text" placeholder="Escribí tu respuesta">
+
+<br><br>
+
+<button class="boton" id="comenzar">Comenzar partida</button>
+
+<br><br>
+
+<button class="boton" id="responder" disabled>Responder</button>
+
+<button class="boton paso" id="pasapalabra" disabled>Pasapalabra</button>
+
+</div>
+
+<div id="resultado" style="display:none; margin-top:20px;"></div>
+</div>
+
+</div>
+
+<script>
+
+const letras=[
+"A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+];
+
+const preguntas={
+
+"A":"Periodista deportivo argentino reconocido por sus relatos y análisis.",
+
+"B":"Director técnico campeón del mundo en 1986.",
+
+"C":"Competencia internacional organizada por FIFA.",
+
+"D":"Apellido del histórico relator Víctor Hugo _______.",
+
+"E":"Evento deportivo que reúne atletas de todo el mundo.",
+
+"F":"Acción sancionada por el árbitro.",
+
+"G":"Máximo torneo de clubes de Sudamérica.",
+
+"H":"Tiempo adicional que agrega el árbitro.",
+
+"I":"Jugador que ocupa el centro del campo.",
+
+"J":"Con la J... deporte creado por James Naismith.",
+
+"L":"Con la L... apellido del relator Mariano ____.",
+
+"M":"Con la M... apellido del mejor jugador argentino de la actualidad.",
+
+"N":"Con la N... país donde nació Cristiano Ronaldo (no, es broma 😜).",
+
+"Ñ":"Letra especial del rosco.",
+
+"O":"Con la O... competición de cuatro años entre selecciones.",
+
+"P":"Acción de pasar el balón.",
+
+"Q":"Con la Q... provincia argentina donde nació Ginóbili.",
+
+"R":"Persona que relata un partido.",
+
+"S":"Acción de sacar desde un costado.",
+
+"T":"Con la T... torneo.",
+
+"U":"Con la U... última fecha de un campeonato.",
+
+"V":"Sistema de videoarbitraje.",
+
+"W":"Con la W... apellido de un histórico delantero inglés: Wayne ______.",
+
+"X":"Con la X... palabra usada en estadísticas deportivas.",
+
+"Y":"Con la Y... apellido del exjugador Yupanqui.",
+
+"Z":"Con la Z... zona defensiva."
+
+};
+
+const rosco = document.querySelector(".rosco");
+const respuestas={
+
+"A":"arcucci",
+
+"B":"bilardo",
+
+"C":"copa",
+
+"D":"muñoz",
+
+"E":"olimpicos",
+
+"F":"falta",
+
+"G":"libertadores",
+
+"H":"descuento",
+
+"I":"mediocampista",
+
+"J":"jockey",
+
+"L":"latorre",
+
+"M":"messi",
+
+"N":"nazario",
+
+"Ñ":"ñ",
+
+"O":"olimpiadas",
+
+"P":"pase",
+
+"Q":"quilmes",
+
+"R":"relator",
+
+"S":"saque",
+
+"T":"torneo",
+
+"U":"ultima",
+
+"V":"var",
+
+"W":"rooney",
+
+"X":"xg",
+
+"Y":"yupanqui",
+
+"Z":"zaga"
+
+};
+const roscoElegido = localStorage.getItem("roscoParaJugar") || "Básquet";
+
+if(roscoElegido){
+
+    let nuevasPreguntas = {};
+    let nuevasRespuestas = {};
+
+    Object.keys(respuestas).forEach(letra=>{
+
+        const datos = localStorage.getItem(roscoElegido+"_"+letra);
+
+        if(datos){
+
+            const info = JSON.parse(datos);
+
+            nuevasPreguntas[letra] = info.pregunta;
+            nuevasRespuestas[letra] = info.respuesta;
+
+        }
+
+    });
+
+    if(Object.keys(nuevasPreguntas).length > 0){
+
+        Object.assign(preguntas, nuevasPreguntas);
+        Object.assign(respuestas, nuevasRespuestas);
+
+    }
+
+}
+const radio = 270;
+
+const centro = 325;
+let letraActual = "A";
+let posicionActual = 0;
+let letrasPendientes = [];
+let segundaVuelta = false;
+let indicePendiente = 0;
+
+let correctas = 0;
+let incorrectas = 0;
+let pasadas = 0;
+
+let tiempo = parseInt(localStorage.getItem("tiempo_" + roscoElegido)) || 240;
+let intervalo;
+const temporizador = document.querySelector(".temporizador");
+function mostrarLetra(letra){
+
+document.querySelectorAll(".letra").forEach(l=>l.classList.remove("activa"));
+
+document.querySelectorAll(".letra").forEach(l=>{
+
+if(l.innerText==letra){
+
+l.classList.add("activa");
+
+}
+
+});
+
+document.getElementById("tituloPregunta").innerText="Con la "+letra+"...";
+
+const roscoElegido = localStorage.getItem("roscoParaJugar") || "General";
+
+const datosGuardados = localStorage.getItem(roscoElegido+"_"+letra);
+
+if(datosGuardados){
+
+    const rosco = JSON.parse(datosGuardados);
+
+    document.getElementById("textoPregunta").innerText = rosco.pregunta;
+
+}else{
+
+    document.getElementById("textoPregunta").innerText = preguntas[letra];
+
+}
+letraActual=letra;
+
+posicionActual=letras.indexOf(letra);
+
+}
+function iniciarTemporizador(){
+
+    intervalo = setInterval(()=>{
+
+        tiempo--;
+
+        const minutos = Math.floor(tiempo/60);
+        const segundos = tiempo%60;
+
+        temporizador.innerText =
+            String(minutos).padStart(2,"0")+":"+
+            String(segundos).padStart(2,"0");
+
+        if(tiempo<=0){
+
+            clearInterval(intervalo);
+             document.querySelector("input").disabled = true;
+    document.getElementById("responder").disabled = true;
+    document.getElementById("pasapalabra").disabled = true;
+
+              mostrarResultado();
+
+
+        }
+
+    },1000);
+
+}
+function mostrarResultado(){
+   document.getElementById("resultadoFinal").innerHTML = `
+<h3 style="
+font-size:32px;
+color:#062c73;
+margin:5px 0 25px 0;
+text-transform:uppercase;
+letter-spacing:1px;
+">
+🏆 ${roscoElegido}
+</h3>
+<input
+id="nombreJugador"
+type="text"
+placeholder="Escribí tu nombre"
+style="
+width:80%;
+padding:12px;
+font-size:18px;
+border-radius:10px;
+border:2px solid #1b5cff;
+margin-bottom:20px;
+text-align:center;
+">
+<button class="boton" onclick="guardarResultado()">
+💾 Guardar resultado
+</button>
+
+<p>🟢 <strong>Correctas:</strong> ${correctas}</p>
+
+<p>🔴 <strong>Incorrectas:</strong> ${incorrectas}</p>
+
+<p>🟡 <strong>Pasapalabras:</strong> ${letrasPendientes.length}</p>
+
+<p>⏱️ <strong>Tiempo restante:</strong> ${temporizador.innerText}</p>
+<br>
+
+<button class="boton" onclick="location.reload()">🔄 Jugar otra vez</button>
+`;
+
+document.getElementById("modalFinal").style.display = "flex";
+
+}
+
+function siguienteLetra(){
+    if(segundaVuelta){
+
+    if(indicePendiente < letrasPendientes.length){
+
+        mostrarLetra(letrasPendientes[indicePendiente]);
+
+        indicePendiente++;
+
+        return;
+
+    }else{
+
+        mostrarResultado();
+        return;
+
+    }
+
+}
+
+posicionActual++;
+
+if(posicionActual >= letras.length){
+
+    posicionActual = 0;
+
+    if(letrasPendientes.length > 0){
+
+        segundaVuelta = true;
+        indicePendiente = 0;
+
+        mostrarLetra(letrasPendientes[indicePendiente]);
+indicePendiente++;
+        return;
+
+    }else{
+
+        mostrarResultado();
+
+        return;
+
+    }
+
+}
+
+mostrarLetra(letras[posicionActual]);
+}
+
+letras.forEach((letra,i)=>{
+
+const div=document.createElement("div");
+
+div.className="letra";
+
+div.innerText=letra;
+
+const angulo=(2*Math.PI/letras.length)*i-Math.PI/2;
+
+const x=centro+radio*Math.cos(angulo)-26;
+
+const y=centro+radio*Math.sin(angulo)-26;
+
+div.style.left=x+"px";
+
+div.style.top=y+"px";
+
+div.dataset.estado="azul";
+
+div.onclick=()=>{
+
+mostrarLetra(letra);
+
+
+};
+
+rosco.appendChild(div);
+
+});
+document.getElementById("responder").onclick = () => {
+
+    let respuesta = document.querySelector("input").value.toLowerCase().trim();
+
+    const letraRespondida = letraActual;
+
+    const circulo = [...document.querySelectorAll(".letra")].find(
+        l => l.innerText == letraRespondida
+    );
+
+    letrasPendientes = letrasPendientes.filter(
+        l => l != letraRespondida
+    );
+
+    const datosGuardados = localStorage.getItem("rosco_"+letraRespondida);
+
+let respuestaCorrecta = respuestas[letraRespondida];
+
+if(datosGuardados){
+
+    respuestaCorrecta = JSON.parse(datosGuardados).respuesta;
+
+}
+
+if(respuesta == respuestaCorrecta){
+
+        alert("¡Correcto!");
+
+        correctas++;
+
+        circulo.style.background="#27ae60";
+
+    }else{
+
+        alert("Incorrecto");
+
+        incorrectas++;
+
+        circulo.style.background="#d63031";
+
+    }
+
+    document.querySelector("input").value="";
+
+    siguienteLetra();
+
+};
+
+document.getElementById("pasapalabra").onclick = () => {
+
+    const letraPasada = letraActual;
+
+    if(!letrasPendientes.includes(letraPasada)){
+
+        letrasPendientes.push(letraPasada);
+
+    }
+
+    const circulo = [...document.querySelectorAll(".letra")].find(
+        l => l.innerText == letraPasada
+    );
+
+    circulo.style.background="#f1c40f";
+    circulo.style.color="black";
+
+    siguienteLetra();
+
+};
+mostrarLetra("A");
+
+const minutos = Math.floor(tiempo / 60);
+const segundos = tiempo % 60;
+
+temporizador.innerText =
+    String(minutos).padStart(2,"0")+":"+
+    String(segundos).padStart(2,"0");
+document.getElementById("comenzar").onclick = () => {
+
+    iniciarTemporizador();
+
+    mostrarLetra("A");
+
+    document.getElementById("responder").disabled = false;
+    document.getElementById("pasapalabra").disabled = false;
+
+    document.getElementById("comenzar").disabled = true;
+document.querySelectorAll(".letra").forEach(l => {
+    l.style.pointerEvents = "none";
+});
+};
+
+function guardarResultado(){
+
+    let nombre = document.getElementById("nombreJugador").value;
+
+    if(nombre.trim() === ""){
+        alert("Escribí tu nombre primero");
+        return;
+    }
+
+    let resultado = {
+        nombre: nombre,
+        rosco: roscoElegido,
+        correctas: correctas,
+        incorrectas: incorrectas,
+        pasapalabras: letrasPendientes.length,
+        tiempo: temporizador.innerText
+    };
+
+    let resultados = JSON.parse(localStorage.getItem("resultados")) || [];
+
+    resultados.push(resultado);
+
+    localStorage.setItem("resultados", JSON.stringify(resultados));
+
+    alert("Resultado guardado ✅");
+
+}
+
+</script>
+<div id="modalFinal" class="modalFinal">
+    <div class="modalContenido">
+
+        <h2>🏆 Partida finalizada</h2>
+
+        <p id="resultadoFinal"></p>
+
+        
+
+    </div>
+</div>
+</body>
+</html>

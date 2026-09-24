@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Panel del Profesor - Rosco Aula</title> 
+
+
+<style>
+
+body{
+
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#1976d2;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+   min-height:100vh;
+padding:40px 0;
+}
+
+.contenedor{
+
+   width:900px;
+max-width:90%;
+    background:white;
+    color:#333;
+    border-radius:15px;
+    padding:40px;
+    text-align:center;
+    box-shadow:0 0 25px rgba(0,0,0,.3);
+
+}
+
+h1{
+
+    color:#1976d2;
+
+}
+
+p{
+
+    font-size:18px;
+
+}
+
+.boton{
+
+    margin-top:25px;
+    background:#1976d2;
+    color:white;
+    border:none;
+    padding:15px 30px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:18px;
+
+}
+
+.boton:hover{
+
+    background:#1258a7;
+
+}
+input,
+textarea,
+select{
+
+    font-size:16px;
+    padding:10px;
+    box-sizing:border-box;
+
+}
+.rankingBoton{
+    background:#f5b400;
+    color:white;
+    font-weight:bold;
+    border-radius:12px;
+    padding:15px 35px;
+}
+
+.rankingBoton:hover{
+    background:#d99a00;
+}
+hr{
+
+    margin:30px 0;
+
+}
+.modalFinal{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.55);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.modalContenido{
+width:90%;
+max-width:1400px;
+max-height:90vh;
+overflow-y:auto;
+    background:linear-gradient(180deg,#ffffff,#f5f8ff);
+    border-radius:20px;
+    padding:35px;
+    width:1000px;
+   max-width:900px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,.30);
+    border:3px solid #1b5cff;
+    color:#333;
+}
+.tarjetaRanking{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    display:inline-block;
+    width:220px;
+    vertical-align:top;
+    text-align:center;
+}
+
+.tarjetaRanking b{
+    font-size:20px;
+    display:block;
+    margin-bottom:15px;
+}
+.podio{
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+    gap:25px;
+    margin-bottom:40px;
+    flex-wrap:nowrap;
+}
+.tarjetaPodio{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+   width:220px;
+height:280px;
+    text-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,0.18);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+}
+
+.tarjetaPodio b{
+    font-size:24px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<h1>👨‍🏫 Panel del Profesor</h1>
+<button class="boton rankingBoton" onclick="verRanking()">
+🏆 Ver Ranking
+</button>
+<h2>📚 Mis Roscos</h2>
+
+<button class="boton" id="crearRosco">
+➕ Crear nuevo rosco
+</button>
+
+<br><br>
+<div id="listaRoscos">
+
+    <p>No hay roscos creados todavía.</p>
+
+</div>
+
+<br>
+<hr><br>
+
+    <label><b>Nombre del Rosco</b></label>
+
+<br><br>
+
+<input 
+id="nombreRosco"
+type="text"
+placeholder="Ej: Básquet FIBA 2026"
+style="width:100%; height:35px;">
+<br><br>
+<label>Tiempo de la partida (segundos)</label>
+
+<input type="number" id="tiempoRosco" value="240" min="30" step="30">
+
+<br><br><br>
+<label><b>Letra</b></label>
+
+<br><br>
+
+<select id="letra">
+
+<option>A</option>
+<option>B</option>
+<option>C</option>
+<option>D</option>
+<option>E</option>
+<option>F</option>
+<option>G</option>
+<option>H</option>
+<option>I</option>
+<option>J</option>
+<option>L</option>
+<option>M</option>
+<option>N</option>
+<option>Ñ</option>
+<option>O</option>
+<option>P</option>
+<option>Q</option>
+<option>R</option>
+<option>S</option>
+<option>T</option>
+<option>U</option>
+<option>V</option>
+<option>W</option>
+<option>X</option>
+<option>Y</option>
+<option>Z</option>
+
+</select>
+
+<br><br><br>
+
+<label><b>Pregunta</b></label>
+
+<br><br>
+
+<textarea id="pregunta" rows="4" style="width:100%;"></textarea>
+
+<br><br>
+
+<label><b>Respuesta</b></label>
+
+<br><br>
+
+<input
+id="respuesta"
+type="text"
+style="width:100%; height:35px;">
+
+<br><br>
+
+<button class="boton" id="guardarPregunta">
+💾 Guardar pregunta
+</button>
+
+<button class="boton" onclick="window.location.href='index.html'">
+⬅ Volver al juego
+</button>
+
+</div>
+<script>
+document.getElementById("guardarPregunta").onclick = () => {
+
+    const letra = document.getElementById("letra").value;
+
+    const pregunta = document.getElementById("pregunta").value;
+
+    const respuesta = document.getElementById("respuesta").value;
+
+
+
+const roscoActual = localStorage.getItem("roscoActual") || "General";
+const tiempoRosco = document.getElementById("tiempoRosco").value;
+
+localStorage.setItem("tiempo_"+roscoActual, tiempoRosco);
+    localStorage.setItem(
+        roscoActual+"_"+letra,
+        JSON.stringify({
+            pregunta: pregunta,
+            respuesta: respuesta.toLowerCase().trim()
+        })
+    );
+
+    alert("✅ Pregunta guardada");
+
+};
+document.getElementById("letra").onchange = () => {
+
+    const letra = document.getElementById("letra").value;
+
+    const roscoActual = localStorage.getItem("roscoActual") || "General";
+
+const datos = localStorage.getItem(roscoActual+"_"+letra);
+
+    if(datos){
+
+        const rosco = JSON.parse(datos);
+
+        document.getElementById("pregunta").value = rosco.pregunta;
+
+        document.getElementById("respuesta").value = rosco.respuesta;
+
+    }else{
+
+        document.getElementById("pregunta").value = "";
+
+        document.getElementById("respuesta").value = "";
+
+    }
+    const tiempoGuardado = localStorage.getItem("tiempo_"+roscoActual);
+
+document.getElementById("tiempoRosco").value = tiempoGuardado || 240;
+
+};
+function actualizarListaRoscos(){
+
+    const lista = document.getElementById("listaRoscos");
+
+    lista.innerHTML = "";
+
+    let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    if(roscos.length==0){
+
+        lista.innerHTML="<p>No hay roscos creados todavía.</p>";
+
+        return;
+
+    }
+
+    roscos.forEach(nombre=>{
+
+       lista.innerHTML += `
+<div style="background:#f4f6f8;padding:15px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+
+<span>📚 ${nombre}</span>
+
+<div>
+
+<button class="boton abrirRosco" data-nombre="${nombre}">
+Abrir
+</button>    
+
+<button class="boton jugarRosco" data-nombre="${nombre}">
+▶️ Jugar
+</button>
+
+<button class="boton duplicarRosco" data-nombre="${nombre}">
+📄
+</button>
+
+<button class="boton editarRosco" data-nombre="${nombre}">
+✏️
+</button>
+
+<button class="boton eliminarRosco" data-nombre="${nombre}">
+🗑️
+</button>
+
+</div>
+
+</div>
+`;
+
+    });
+
+}
+
+
+
+actualizarListaRoscos();
+
+document.getElementById("crearRosco").onclick = () => {
+
+    const nombre = prompt("Nombre del nuevo rosco:");
+
+    if(!nombre) return;
+
+    let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    roscos.push(nombre);
+
+    localStorage.setItem("misRoscos", JSON.stringify(roscos));
+
+    actualizarListaRoscos();
+
+};
+
+document.addEventListener("click",(e)=>{
+
+    if(!e.target.classList.contains("abrirRosco")) return;
+
+    const nombre = e.target.dataset.nombre;
+localStorage.setItem("roscoActual", nombre);
+    document.getElementById("nombreRosco").value = nombre;
+document.getElementById("letra").onchange();
+    alert("Editando el rosco: " + nombre);
+
+});
+document.addEventListener("click",(e)=>{
+
+    if(!e.target.classList.contains("eliminarRosco")) return;
+
+    const nombre = e.target.dataset.nombre;
+
+    if(!confirm("¿Eliminar el rosco '"+nombre+"'?")) return;
+
+    let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    roscos = roscos.filter(r => r !== nombre);
+
+    localStorage.setItem("misRoscos", JSON.stringify(roscos));
+
+    actualizarListaRoscos();
+
+});
+document.addEventListener("click",(e)=>{
+
+    if(!e.target.classList.contains("editarRosco")) return;
+
+    const nombreViejo = e.target.dataset.nombre;
+
+    const nombreNuevo = prompt("Nuevo nombre del rosco:", nombreViejo);
+
+    if(!nombreNuevo || nombreNuevo==nombreViejo) return;
+
+    let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    const indice = roscos.indexOf(nombreViejo);
+
+    if(indice!=-1){
+
+        roscos[indice] = nombreNuevo;
+
+        localStorage.setItem("misRoscos", JSON.stringify(roscos));
+
+        actualizarListaRoscos();
+
+    }
+
+});
+document.addEventListener("click",(e)=>{
+
+    if(!e.target.classList.contains("duplicarRosco")) return;
+
+    const nombre = e.target.dataset.nombre;
+
+    let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    const copia = nombre + " (Copia)";
+
+    roscos.push(copia);
+
+    localStorage.setItem("misRoscos", JSON.stringify(roscos));
+
+    actualizarListaRoscos();
+
+});
+
+document.addEventListener("click",(e)=>{
+
+    if(!e.target.classList.contains("jugarRosco")) return;
+
+    const nombre = e.target.dataset.nombre;
+
+    localStorage.setItem("roscoParaJugar", nombre);
+
+    window.location.href = "index.html";
+
+});
+function verRanking(){
+
+  let roscos = JSON.parse(localStorage.getItem("misRoscos")) || [];
+
+    let botones = "";
+
+    roscos.forEach(r=>{
+        botones += `<button class="boton" onclick="mostrarRanking('${r}')">${r}</button><br><br>`;
+    });
+
+    document.getElementById("listaRoscosRanking").innerHTML = botones;
+    document.getElementById("contenidoRanking").innerHTML = "";
+
+    document.getElementById("modalRanking").style.display = "flex";
+
+}
+
+function mostrarRanking(roscoActual){
+
+    let resultados = JSON.parse(localStorage.getItem("resultados")) || [];
+
+    let ranking = resultados.filter(r =>
+        r.rosco.toLowerCase() === roscoActual.toLowerCase()
+    );
+
+    if(ranking.length===0){
+
+        document.getElementById("contenidoRanking").innerHTML =
+        "<p>No hay resultados para este rosco.</p>";
+
+        return;
+    }
+
+    ranking.sort((a,b)=>{
+
+        if(b.correctas !== a.correctas){
+            return b.correctas - a.correctas;
+        }
+
+        return b.tiempo.localeCompare(a.tiempo);
+
+    });
+
+    let html = `<h3>${roscoActual}</h3>`;
+
+    let primeros = ranking.slice(0,3);
+let restantes = ranking.slice(3);
+
+let podioHTML = `<div class="podio">`;
+
+primeros.forEach((r,i)=>{
+
+    let puesto = (i==0) ? "🥇 PRIMER PUESTO" :
+                 (i==1) ? "🥈 SEGUNDO PUESTO" :
+                          "🥉 TERCER PUESTO";
+
+    podioHTML += `
+    <div class="tarjetaPodio">
+        <b>${puesto}</b>
+        <h3>${r.nombre}</h3>
+
+        🟢 Correctas: ${r.correctas}<br>
+        🔴 Incorrectas: ${r.incorrectas}<br>
+        🟡 Pasapalabras: ${r.pasapalabras}<br>
+        ⏱️ Tiempo: ${r.tiempo}
+    </div>
+    `;
+
+});
+
+podioHTML += `</div>`;
+
+
+let restoHTML = "";
+
+restantes.forEach((r,i)=>{
+
+    restoHTML += `
+    <div class="tarjetaRanking">
+        <b>${i+4}° ${r.nombre}</b><br>
+
+        🟢 Correctas: ${r.correctas}<br>
+        🔴 Incorrectas: ${r.incorrectas}<br>
+        🟡 Pasapalabras: ${r.pasapalabras}<br>
+        ⏱️ Tiempo: ${r.tiempo}
+    </div>
+    `;
+
+});
+
+
+html = podioHTML + restoHTML;
+
+    document.getElementById("contenidoRanking").innerHTML = html;
+
+}
+</script>
+<div id="modalRanking" class="modalFinal">
+
+<div class="modalContenido">
+
+<h2>🏆 Ranking de jugadores</h2>
+<div id="listaRoscosRanking" style="margin-bottom:20px;"></div>
+<div id="contenidoRanking"></div>
+
+<button class="boton" onclick="document.getElementById('modalRanking').style.display='none'">
+Cerrar
+</button>
+
+</div>
+
+</div>
+</body>
+
+</html>
